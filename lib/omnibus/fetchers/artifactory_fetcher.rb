@@ -27,6 +27,7 @@ module Omnibus
     # @return [String]
     #
     def find_source_url
+      require 'base64'
       require("digest")
       require("artifactory")
 
@@ -37,6 +38,15 @@ module Omnibus
 
       Artifactory.endpoint = endpoint
       Artifactory.api_key  = source[:authorization ] if source[:authorization]
+
+      unless source.key?(:authorization)
+        username = ENV['ARTIFACTORY_USERNAME'] || nil
+        password = ENV['ARTIFACTORY_PASSWORD'] || nil
+        error_message = "You have to provide either source[:authorization] or environment variables for artifactory client"
+        raise error_message if username.nil? || password.nil?
+
+        source[:authorization] = "Basic #{Base64.encode64("#{username}:#{password}")}"
+      end
 
       log.debug(:debug) { "Path to file #{source[:path]} in #{source[:repository]}" }
 
