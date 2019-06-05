@@ -65,6 +65,7 @@ module Omnibus
 
   autoload :GitFetcher,  "omnibus/fetchers/git_fetcher"
   autoload :NetFetcher,  "omnibus/fetchers/net_fetcher"
+  autoload :ArtifactoryFetcher, "omnibus/fetchers/artifactory_fetcher"
   autoload :NullFetcher, "omnibus/fetchers/null_fetcher"
   autoload :PathFetcher, "omnibus/fetchers/path_fetcher"
   autoload :FileFetcher, "omnibus/fetchers/file_fetcher"

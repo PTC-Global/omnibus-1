@@ -1156,8 +1156,6 @@ module Omnibus
     end
 
     #
-    #
-    #
     def compress_me
       destination = File.expand_path("pkg", Config.project_root)
 
