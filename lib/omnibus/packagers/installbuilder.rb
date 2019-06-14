@@ -96,7 +96,7 @@ module Omnibus
       end
 
       parameters.each do |name, value|
-        params.push "#{name}=#{value}"
+        params.push "#{name}='#{value}'"
       end
 
       <<-EOH.split.join(" ").squeeze(" ").strip
