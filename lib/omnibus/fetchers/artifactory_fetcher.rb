@@ -50,26 +50,28 @@ module Omnibus
 
       log.debug(:debug) { "Path to file #{source[:path]} in #{source[:repository]}" }
 
-      result = Artifactory::Resource::Artifact.search(name: source[:filename_pattern], repos: source[:repository])
-      raise "Unable to find #{source[:filename_pattern]} in #{source[:repository]}" if result.nil? || result.empty?
+      query = <<EOM
+items.find(
+  {
+      "repo": {"$eq":"#{source[:repository]}"},
+      "name": {"$match":"#{source[:filename_pattern]}"},
+      "path": {"$match":"#{source[:path]}"}
+  }
+).include("name", "repo", "created", "path", "actual_sha1").sort({"$desc" : ["created"]}).limit(1)
+EOM
+      result = Artifactory.post('/api/search/aql', query, 'Content-Type' => 'text/plain')
+      results = result['results']
 
-      if result.kind_of?(Array)
-        result.select! do |item|
-          uri_without_filename = item.download_uri.split('/')[0..-2].join('/')
-          uri_without_filename.start_with?("#{endpoint}/#{source[:repository]}#{source[:path]}")
-        end
-        raise "Unable to find #{source[:filename_pattern]} in #{source[:repository]} with path #{source[:path]}" if result.empty?
+      log.debug(:debug) { "Search Result #{result}" }
 
-        result.sort_by!(&:created)
-        artifact = result[-1]
-      else
-        artifact = result
-      end
-      log.debug(:debug) { "Found Artifact #{artifact.inspect}" }
-      log.info(:info) { "Found Artifact #{artifact.download_uri} #{artifact.checksums['sha1']}" }
+      raise "Unable to find #{source[:filename_pattern]} in #{source[:repository]}" if results.empty?
 
-      source[:url] = artifact.download_uri
-      source[:sha1] = artifact.checksums['sha1']
+      artifact = results[0]
+
+      source[:url] = "#{Artifactory.endpoint}/#{artifact['repo']}/#{artifact['path']}/#{artifact['name']}"
+      source[:sha1] = artifact['actual_sha1']
+
+      log.info(:info) { "Found Artifact #{source[:url]} #{source[:sha1]}" }
     end
 
     #
