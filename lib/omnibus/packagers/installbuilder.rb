@@ -295,7 +295,7 @@ module Omnibus
     #
     def ib_license(val = NULL)
       if null?(val)
-        @ib_license || '$IB_LICENSE'
+        @ib_license || ENV['IB_LICENSE']
       else
         unless val.is_a?(String)
           raise InvalidValue.new(:ib_license, 'be an String')
