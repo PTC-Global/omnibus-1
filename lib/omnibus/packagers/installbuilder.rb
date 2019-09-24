@@ -192,7 +192,7 @@ module Omnibus
     # --------------------------------------------------
 
     def build_version
-      "#{project.build_version}-#{project.build_iteration}"
+      project.build_version
     end
 
     # @see Base#package_name
