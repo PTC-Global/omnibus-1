@@ -682,7 +682,7 @@ module Omnibus
       build_commands << BuildCommand.new(command) do
         Dir.chdir(software.project_dir) do
           if options.delete(:unchecked)
-            FileUtils.ln_s(source, destination, options)
+            FileUtils.ln_s(source, destination, **options)
           else
             files = FileSyncer.glob(source)
             if files.empty?
